@@ -1,0 +1,4 @@
+/secret.py
+/simple_bot.py
+*.pyc
+__pycache__/
