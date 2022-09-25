@@ -3,8 +3,10 @@ from secret import API_TOKEN
 
 bot = telegram.Bot(API_TOKEN)
 
-@bot.command('/start', 'Hallo Welt')
+# Register Commands
+@bot.command('/start', 'Hello World')
 def start():
-    return 'Hallo Welt!'
+    return 'Hello World!'
 
+# Run it..
 bot.start()

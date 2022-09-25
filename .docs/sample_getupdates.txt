@@ -1,0 +1,21 @@
+{
+    'update_id': 76263587, 
+    'message': {
+        'message_id': 9, 
+        'from': {
+            'id': 123456, 
+            'is_bot': False, 
+            'first_name': 'Max', 
+            'username': 'MaximilianClemens', 
+            'language_code': 'de'
+        }, 
+        'chat': {
+            'id': 123456, 
+            'first_name': 'Max', 
+            'username': 'MaximilianClemens', 
+            'type': 'private'
+        }, 
+        'date': 1664142993, 
+        'text': 'hi'
+    }
+}

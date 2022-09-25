@@ -11,9 +11,12 @@ class Bot(object):
         self.commands = {}
         self.run = True
         self.baseurl = 'https://api.telegram.org'
+        self.command_desc = {}
 
-    def command(self, command):
+    def command(self, command, desc=None):
         """ Add new command to Bot """
+        if desc:
+            self.command_desc[command] = desc
 
         return lambda f: self.commands.update({command: f})
 
