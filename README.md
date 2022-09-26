@@ -1,5 +1,5 @@
-== Python Telegram Bot ==
-Build your own Telegram-Bot in seconds..
+#Python Telegram Bot
+Simple Telegram Bot Library, example: 
 ```python
 import telegram
 
@@ -8,8 +8,8 @@ bot = telegram.Bot(token)
 
 # Register Commands
 @bot.command('/start', 'Hello World')
-def start():
-    return 'Hello World!'
+def start(conversation):
+    conversation.send('Hello World!')
 
 # Run it..
 bot.start()
