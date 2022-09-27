@@ -97,6 +97,9 @@ class Bot(object):
         offset = 0
         while self.run:
             for update in self._get('getUpdates', {'offset': offset})['result']:
+                if 'message' not in update.keys():
+                    # ignore edited messages
+                    continue
                 chat_id = update['message']['chat']['id']
                 from_id = update['message']['from']['id']
                 identifier = f'{chat_id}-{from_id}'
@@ -104,19 +107,24 @@ class Bot(object):
                 conversation = None
 
                 with self.lock:
-                    if identifier in self.conversations.keys():
+                    conversion_running = (identifier in self.conversations.keys())
+                    is_text = ('text' in update['message'].keys())
+                    is_command = (update['message']['text'][0] == '/') if is_text else False
+            
+                    if is_command:
+                        if conversion_running:
+                            self.conversations[identifier].execution = False
+                        conversation = Conversation(self)
+                        conversation.chat_id = chat_id
+                        conversation.from_id = from_id
+                        conversation.identifier = identifier
+                        self.conversations[identifier] = conversation
+                        task = asyncio.create_task(conversation.execute(update))
+                        tasks.add(task)
+                        task.add_done_callback(tasks.discard)
+                    elif conversion_running:
                         conversation = self.conversations[identifier]
                         conversation.push(update)
-                    else:
-                        if update['message']['text'][0] == '/':
-                            conversation = Conversation(self)
-                            conversation.chat_id = chat_id
-                            conversation.from_id = from_id
-                            conversation.identifier = identifier
-                            self.conversations[identifier] = conversation
-                            task = asyncio.create_task(conversation.execute(update))
-                            tasks.add(task)
-                            task.add_done_callback(tasks.discard)
 
                 if update['update_id'] >= offset:
                     offset = update['update_id']+1

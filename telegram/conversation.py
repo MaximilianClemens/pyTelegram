@@ -1,5 +1,7 @@
 import asyncio
 import time
+import os
+import sys
 
 class Conversation(object):
 
@@ -10,52 +12,79 @@ class Conversation(object):
         self.chat_id = None
         self.from_id = None
         self.identifier = None
+        self.execution = True
 
     async def execute(self, update):
+        command = ''
         try:
             self.push(update)
             command = self.updates[0].text.split(' ')[0]
-            
+            self.updates[0].read = True
             if command in self.bot.commands.keys():
-                self.bot.commands[command](self)
+                await asyncio.create_task(self.bot.commands[command](self))
             else:
                 self.send('Unbekannter Befehl')
 
-            with self.bot.lock:
-                self.bot.conversations.pop(self.identifier, None)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
 
-            #    await asyncio.sleep(1)
+            if not self.execution:
+                self.send(f'[Command {command} aborted.]')
+        finally:
+            self.cleanup()
 
-        except:
-            print("An exception occurred")
+    def cleanup(self):
+        with self.bot.lock:
+            self.bot.conversations.pop(self.identifier, None)
 
-    #def wait_for_update(self):
-    #    while True:
-    #        print('he')
-    #        if len(self.updates) > 1:
-    #            return self.updates[1]
-    #        time.sleep(1)
-            
+    async def get_response(self):
+        while self.execution:
+            for update in self.updates:
+                if not update.read:
+                    update.read = True
+                    return update
+            await asyncio.sleep(0.5)
+        if not self.execution:
+            raise Exception('Conversation aborted')
 
     def send(self, message):
         params = {"chat_id": self.chat_id, "text": message}
         self.bot._post('sendMessage', params)
+        print(f'[{self.chat_id}]BOT: {message}')
 
     def push(self, update_raw):
         update = Update(update_raw)
-        print(f'[{update.chat_id}]{update.from_username}: {update.text}')
-        
+        if update.text:
+            print(f'[{update.chat_id}]{update.from_username}: {update.text}')
+        else:
+            print(f'[{update.chat_id}]{update.from_username}: {update.type}')
+
         self.updates.append(update)
-        
+
 
 class Update(object):
 
     def __init__(self, update_raw):
-        # TODO: check Type
-        
         self.update_raw = update_raw
         self.chat_id = update_raw['message']['chat']['id']
         self.from_id = update_raw['message']['from']['id']
         self.from_username = update_raw['message']['from']['username']
 
-        self.text = update_raw['message']['text']
+        self.type = 'unkn'
+        self.text = None
+        self.document = None
+        self.photo = None
+
+        if 'text' in update_raw['message']:
+            self.text = update_raw['message']['text']
+            self.type = 'text'
+        if 'document' in update_raw['message']:
+            self.document = update_raw['message']['document']
+            self.type = 'document'
+        if 'photo' in update_raw['message']:
+            self.photo = update_raw['message']['photo']
+            self.type = 'photo'
+
+        self.read = False
