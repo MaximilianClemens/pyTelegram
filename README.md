@@ -34,5 +34,5 @@ bot.start()
 
 ```
 pip install requests
-pip install git+hhttps://github.com/MaximilianClemens/pytelegram.git
+pip install git+https://github.com/MaximilianClemens/pytelegram.git
 ```
