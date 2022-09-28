@@ -11,7 +11,7 @@ setuptools.setup(
     long_description=long_description,
     packages=setuptools.find_packages(),
     classifiers=[],
-    python_requires='>=3.10',
+    python_requires='>=3.4',
     url='https://github.com/MaximilianClemens/pytelegram',
     license='MIT',
     keywords=['telegram', 'chatbot']
