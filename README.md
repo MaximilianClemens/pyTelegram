@@ -1,4 +1,4 @@
-#Python Telegram Bot
+# Python Telegram Bot
 Simple Telegram Bot Library, example: 
 ```python
 import telegram
@@ -15,7 +15,6 @@ async def start(conversation):
 async def name(conversation):
     conversation.send('What\'s your Name?')
     while True:
-        # TODO: Cancle when user sends other command
         response = await asyncio.create_task(conversation.get_response())
         if response.text:
             conversation.send(f'Hello {response.text}')
@@ -30,3 +29,10 @@ bot.start()
 
 ```
 ![Image of Sample](https://raw.githubusercontent.com/MaximilianClemens/pytelegram/main/.github/images/simple_bot.jpg)
+
+# Install
+
+```
+pip install requests
+pip install git+hhttps://github.com/MaximilianClemens/pytelegram.git
+```

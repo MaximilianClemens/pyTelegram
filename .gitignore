@@ -2,3 +2,5 @@
 /simple_bot.py
 *.pyc
 __pycache__/
+telegram.egg-info/
+build/

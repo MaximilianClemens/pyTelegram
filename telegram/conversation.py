@@ -1,7 +1,5 @@
 import asyncio
 import time
-import os
-import sys
 
 class Conversation(object):
 
@@ -25,10 +23,8 @@ class Conversation(object):
             else:
                 self.send('Unbekannter Befehl')
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+        except Exception:
+            #self.bot.logger.error("Fatal error in main loop", exc_info=True)
 
             if not self.execution:
                 self.send(f'[Command {command} aborted.]')

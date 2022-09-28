@@ -3,6 +3,8 @@ import time
 from threading import Lock
 import asyncio
 
+import logging
+
 
 from .conversation import Conversation
 from telegram import conversation
@@ -15,6 +17,9 @@ class Bot(object):
         # API Access
         self.baseurl = 'https://api.telegram.org'
         self.token = token
+        FORMAT = '%(asctime)s %(clientip)-15s %(user)-8s %(message)s'
+        logging.basicConfig(format=FORMAT, encoding='utf-8', level=logging.INFO)
+        self.logger = logging.getLogger('bot')
 
         # Bot Commands
         self.commands = {}

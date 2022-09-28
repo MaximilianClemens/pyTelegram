@@ -13,7 +13,6 @@ async def start(conversation):
 async def name(conversation):
     conversation.send('What\'s your Name?')
     while True:
-        # TODO: Cancle when user sends other command
         response = await asyncio.create_task(conversation.get_response())
         if response.text:
             conversation.send(f'Hello {response.text}')
