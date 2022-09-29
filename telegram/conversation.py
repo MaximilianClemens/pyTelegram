@@ -16,10 +16,10 @@ class Conversation(object):
         command = ''
         try:
             self.push(update)
-            command = self.updates[0].text.split(' ')[0]
+            command = self.updates[0].text.split(' ')[0][1:]
             self.updates[0].read = True
             if command in self.bot.commands.keys():
-                await asyncio.create_task(self.bot.commands[command](self))
+                await asyncio.create_task(self.bot.commands[command]['function'](self))
             else:
                 self.send('Unbekannter Befehl')
 

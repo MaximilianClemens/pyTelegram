@@ -7,7 +7,6 @@ import logging
 
 
 from .conversation import Conversation
-from telegram import conversation
 
 class Bot(object):
 
@@ -17,13 +16,10 @@ class Bot(object):
         # API Access
         self.baseurl = 'https://api.telegram.org'
         self.token = token
-        FORMAT = '%(asctime)s %(clientip)-15s %(user)-8s %(message)s'
-        logging.basicConfig(format=FORMAT, encoding='utf-8', level=logging.INFO)
-        self.logger = logging.getLogger('bot')
+        self.logger = logging.getLogger('telegrambot')
 
         # Bot Commands
         self.commands = {}
-        self.command_desc = {}
 
         # Bot internal
         self.run = True
@@ -64,26 +60,31 @@ class Bot(object):
 
         return self._request('POST', action, params, return_json)
 
-    def command(self, command, desc=None):
+    def command(self, description='No description', hide=False):
         """ Add new command to Bot """
 
-        if desc:
-            self.command_desc[command] = desc
+        return lambda function: self.commands.update({
+            function.__name__: {
+                'function': function,
+                'description': description,
+                'hide': hide
+            }
+        })
 
-        return lambda f: self.commands.update({command: f})
+    def register_handler(self, type):
+        pass
 
     def update_commands(self):
         """ Update Bot Commands """
         
         command_list = []
+        for command, data in self.commands.items():
+            command_list.append({
+                'command': command,
+                'description': data['description']
+            })
 
-        for command in self.commands.keys():
-            # Only add commands with description
-            if command in self.command_desc.keys():
-                command_list.append({
-                    'command': command[1:],
-                    'description': self.command_desc[command]
-                })
+        print(command_list)
             
         self._post('setMyCommands', {
             'commands': command_list
@@ -102,11 +103,13 @@ class Bot(object):
         offset = 0
         while self.run:
             for update in self._get('getUpdates', {'offset': offset})['result']:
+                #print(update)
                 if 'message' not in update.keys():
                     # ignore edited messages
                     continue
                 chat_id = update['message']['chat']['id']
                 from_id = update['message']['from']['id']
+                
                 identifier = f'{chat_id}-{from_id}'
 
                 conversation = None
